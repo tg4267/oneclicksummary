@@ -32,10 +32,9 @@ app.post("/proxy", async (req, res) => {
 });
 
 // 로컬 테스트용 코드 (Vercel에서는 무시됨)
-if (process.env.NODE_ENV !== "production") {
-  app.listen(PORT, () => {
-    console.log(`프록시 서버가 http://localhost:${PORT}에서 실행 중입니다.`);
-  });
-}
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
 
 module.exports = app; // Vercel이 함수형 모듈을 인식하도록 내보내기
