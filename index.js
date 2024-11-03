@@ -3,13 +3,14 @@
 const express = require("express");
 const axios = require("axios");
 const dotenv = require("dotenv");
+const cors = require("cors"); // CORS 추가
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// JSON 요청 본문을 파싱할 수 있도록 설정
+app.use(cors()); // CORS 미들웨어 설정
 app.use(express.json());
 
 // 프록시 엔드포인트 - POST 요청을 수신
