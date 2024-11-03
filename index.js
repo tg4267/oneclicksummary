@@ -28,25 +28,36 @@ app.post("/proxy", async (req, res) => {
   // 요청 횟수 초기화 및 제한 검사
   if (!userRequests[userIP]) userRequests[userIP] = 0;
   if (userRequests[userIP] >= REQUEST_LIMIT) {
-    return res.status(429).json({ error: "일일 요청 한도를 초과했습니다." });
+    return res.status(429).json({
+      error: "일일 요청 한도를 초과했습니다.",
+      remainingRequests: 0
+    });
   }
 
   // 요청 처리 및 요청 횟수 증가
   try {
-    const response = await axios.post("https://api.openai.com/v1/chat/completions", {
-      model: "gpt-3.5-turbo",
-      messages: req.body.messages,
-      max_tokens: req.body.max_tokens,
-      temperature: req.body.temperature,
-    }, {
-      headers: { 
-        Authorization: `Bearer ${process.env.API_KEY}`,
-        "Content-Type": "application/json"
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-3.5-turbo",
+        messages: req.body.messages,
+        max_tokens: req.body.max_tokens,
+        temperature: req.body.temperature,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.API_KEY}`,
+          "Content-Type": "application/json",
+        },
       }
-    });
+    );
 
     userRequests[userIP] += 1;
-    res.json(response.data);
+    const remainingRequests = REQUEST_LIMIT - userRequests[userIP];
+    res.json({
+      ...response.data,
+      remainingRequests: remainingRequests
+    });
   } catch (error) {
     console.error("API 요청 중 오류 발생:", error);
     res.status(500).json({ error: "API 요청 실패" });
@@ -58,4 +69,4 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-module.exports = app; // Vercel이 함수형 모듈을 인식하도록 내보내기
+module.exports = app;
