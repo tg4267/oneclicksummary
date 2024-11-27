@@ -24,6 +24,12 @@ setInterval(resetDailyLimits, 24 * 60 * 60 * 1000);
 app.post("/proxy", async (req, res) => {
   const userIP = req.ip;
 
+  // action: "checkLimit" 처리
+  if (req.body.action === "checkLimit") {
+    const remaining = REQUEST_LIMIT - (userRequests[userIP] || 0);
+    return res.json({ remaining }); // 남은 횟수 반환
+  }
+
   // Initialize user count if not present
   if (!userRequests[userIP]) userRequests[userIP] = 0;
 
